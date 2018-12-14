@@ -31,7 +31,7 @@ def home(request):
         else:
             color = 'black'
         seoul_district[i] = [k, pm, color]
-        i+=1
+        i += 1
     date = data['ListAirQualityByDistrictService']["row"][0]["MSRDATE"]
     date = date[:4] + "년 " + date[4:6] + "월 " + date[6:8] + "일 " + date[8:10] + "시"
     cs = {'seoul_district': seoul_district, 'date': date}
