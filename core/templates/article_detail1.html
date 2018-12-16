@@ -1,0 +1,190 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+  <div class="right">
+    <a href="{% url 'core:article_detail' 2 %}"><img id="right" src="{% static 'rightarrow.png' %}"></a>
+  </div>
+  <div class="main2">
+    <h2 class="title">서울시 미세먼지 팩트체크</h2>
+    <p>외출하기 전에 미세먼지 정보를 확인하시나요? 하지만 일반적으로 미세먼지 농도를 확인할 때 이용하는, 환경부의 미세먼지 정보가 꼭 옳지는 않을지도 모릅니다. </p>
+    <p>실제로 미세먼지 농도가 ‘맑음’ 또는 ‘보통’이라는 예보만 믿고 외출했다가 탁한 공기에 눈살을 찌푸리는 시민들이 많은데요. 이는 국가 관측소에서 측정한 미세먼지 농도가 구의 전반적인 미세먼지 농도를 반영하지 못하는 경우가 많기 때문입니다.</p>
+    <p>이러한 현상을 수치적으로 확인해보기 위해, 국가 관측소와 케이웨더에서 측정한 12월 14일의 미세먼지 데이터를 수집한 후, 구별로 하루 평균을 내어, 두 기관에서 제공하는 미세먼지 데이터의 하루 평균 값이 얼마나 차이가 나는지를 살펴보았습니다.</p>
+  </div>
+  <div class="chart_wrap">
+    <div id="chart"></div>
+    <div class="blank"></div>
+    <div class="info">
+      <h4>kweather 데이터</h4>
+
+
+      <table class="spec">
+        <tbody><tr>
+          <td>관측소</td><td id="castplace"></td>
+        </tr>
+        <tr>
+          <td>미세먼지</td><td id="pm10"></td>
+        </tr>
+        <tr>
+          <td>airkorea</td><td id="air"></td>
+        </tr>
+        <tr>
+          <td>차이</td><td id="pm2.5"></td>
+
+        </tr>
+
+      </tbody></table>
+      <table class="spec">
+        <tbody><tr>
+          <td><img src="{% static 'good.png' %}"></td><td>좋음 : 대기오염 관련 질환자군에서도 영향이 유발되지 않을 수준</td>
+        </tr>
+        <tr>
+          <td><img src="{% static 'normal.png' %}"></td><td>보통 : 환자군에게 만성 노출시 경미한 영향이 유발될 수 있는 수준</td>
+        </tr>
+        <tr>
+          <td><img src="{% static 'bad.png' %}"></td><td>나쁨 : 환자군 및 민감군에게 유해한 영향 유발</td>
+        </tr>
+        <tr>
+          <td><img src="{% static 'bad2.png' %}"></td><td>매우 나쁨 :	환자군 및 민감군에게 급성 노출시 심각한 영향 유발</td>
+
+        </tr>
+
+      </tbody></table>
+    </div>
+  </div>
+  <p>출처 : airkorea, kweather 2018.12.14 0시 ~ 24시 평균치</p>
+
+  <script>
+    var width = 680,
+      height = 560;
+
+    var svg = d3.select("#chart").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+    var map = svg.append("g").attr("id", "map"),
+    places = svg.append("g").attr("id", "places");
+
+    var projection = d3.geo.mercator()
+    .center([126.9895, 37.5651])
+    .scale(80000)
+    .translate([width/2, height/2]);
+
+    var path = d3.geo.path().projection(projection);
+
+    d3.json("{% static "seoul_municipalities_topo_simple.json" %}", function(error, data) {
+      var features = topojson.feature(data, data.objects.seoul_municipalities_geo).features;
+
+
+      map.selectAll("path")
+          .data(features)
+        .enter().append("path")
+          .attr("class", function(d) {return "municipality c" + d.properties.code })
+          .attr("id", function(d) {return d.properties.SIG_KOR_NM})
+          .attr("d", path);
+      map.selectAll("text")
+          .data(features)
+        .enter().append("text")
+          .attr("transform", function(d) { return "translate(" + path.centroid(d) + ")"; })
+          .attr("dy", ".35em")
+          .attr("id", function(d) {return d.properties.SIG_KOR_NM +"t";})
+          .text(function(d) { return d.properties.SIG_KOR_NM; })
+
+    });
+
+    d3.csv("{% static 'kdata_mean.csv'%}", function(data) {
+      places.selectAll("circle")
+          .data(data)
+        .enter().append("circle")
+          .attr("style", function(d) {return 'fill: ' + d.color})
+          .attr("cx", function(d) { return projection([d.lon, d.lat])[0]; })
+          .attr("cy", function(d) { return projection([d.lon, d.lat])[1]; })
+          .attr("r", 5)
+          .attr("id", function(d) {return d.name})
+          .attr("onclick", function(d) {return "kweather(" + '"'+ d.gu +'"' +","+ '"' + d.name + '"' + ',' + d.mean + ")"})
+      places.selectAll("text")
+          .data(data)
+        .enter().append("text")
+          .attr("x", function(d) { return projection([d.lon, d.lat])[0]; })
+          .attr("y", function(d) { return projection([d.lon, d.lat])[1] + 8;})
+          {#.text(function(d) { return d.name });#}
+    });
+
+    {#d3.csv("{% static 'kdata_s.csv'%}", function(data) {#}
+    {#  places.selectAll("circle")#}
+    {#      .data(data)#}
+    {#    .enter().append("circle")#}
+    {#      .attr("style", function(d) {return 'fill: ' + d.color})#}
+    {#      .attr("cx", function(d) { return projection([d.lon, d.lat])[0]; })#}
+    {#      .attr("cy", function(d) { return projection([d.lon, d.lat])[1]; })#}
+    {#      .attr("r", 5)#}
+    {#      .attr("id", function(d) {return d.name})#}
+    {##}
+    {##}
+    {#  places.selectAll("text")#}
+    {#      .data(data)#}
+    {#    .enter().append("text")#}
+    {#      .attr("x", function(d) { return projection([d.lon, d.lat])[0]; })#}
+    {#      .attr("y", function(d) { return projection([d.lon, d.lat])[1] + 8;})#}
+          {#.text(function(d) { return d.name });#}
+    {# });#}
+  </script>
+
+  <script>
+      setTimeout(function() {
+          d3.csv("{% static 'adata_mean.csv' %}", function(data) {for (i = 0; i < 25; i++){
+      document.getElementById(data[i]['구']).style.fill = data[i]['color'];
+      document.getElementById(data[i]['구']+"t").setAttribute("m",data[i]['평균']);
+  }})}, 100)
+  </script>
+
+  <script>
+  function airkorea(district){
+    var url_air = "http://openapi.seoul.go.kr:8088/4543496e6b743335343742466c496d/json/ListAirQualityByDistrictService/1/25/";
+    $.ajax({
+        url: url_air + district,
+        type:'GET',
+        success:function(data) {
+            var d = data["ListAirQualityByDistrictService"]["row"]
+            document.getElementById("castplace").innerHTML = d[0]["MSRSTENAME"]
+            document.getElementById("pm10").innerHTML = d[0]["PM10"]
+            document.getElementById("pm2.5").innerHTML = d[0]["PM25"]
+            var pm10 = d[0]["PM10"];
+            if (pm10 < 30){
+              document.getElementById("forecast").innerHTML = "오늘은 야외활동하기 좋은 날씨입니다. 피크닉을 가보는 건 어떨까요?"
+            } else if (pm10 < 80) {
+                document.getElementById("forecast").innerHTML = "오늘은 야외활동하기 좋은 날씨입니다. 잠시 일을 내려놓고 쉬어보세요!"
+            } else if (pm10 < 120) {
+                document.getElementById("forecast").innerHTML = "미세먼지 농도가 높은 편입니다. 장시간 무리한 실외활동을 자제하세요."
+            } else if (pm10 < 150) {
+                document.getElementById("forecast").innerHTML = "미세먼지 농도가 높네요. 마스크를 꼭 챙기세요"
+            } else if (pm10 < 30) {
+                document.getElementById("forecast").innerHTML = "미세먼지가 매우 심합니다. 가급적 실내활동을 하시길 바랍니다."
+            }
+        },
+        error:function(data){
+            alert('에러발생')
+
+        }
+    })
+  }
+  function kweather(gu,name,PM10) {
+      document.getElementById("castplace").innerHTML = gu + ' ' + name;
+      document.getElementById("pm10").innerHTML = PM10;
+      var apm10 = document.getElementById(gu + "t").getAttribute('m');
+       document.getElementById("air").innerHTML = apm10;
+      document.getElementById("pm2.5").innerHTML = PM10 - apm10;
+      var pm10 = PM10;
+            if (pm10 < 30){
+              document.getElementById("forecast").innerHTML = "오늘은 야외활동하기 좋은 날씨입니다. 피크닉을 가보는 건 어떨까요?"
+            } else if (pm10 < 80) {
+                document.getElementById("forecast").innerHTML = "오늘은 야외활동하기 좋은 날씨입니다. 잠시 일을 내려놓고 쉬어보세요!"
+            } else if (pm10 < 120) {
+                document.getElementById("forecast").innerHTML = "미세먼지 농도가 높은 편입니다. 장시간 무리한 실외활동을 자제하세요."
+            } else if (pm10 < 150) {
+                document.getElementById("forecast").innerHTML = "미세먼지 농도가 높네요. 마스크를 꼭 챙기세요"
+            } else if (pm10 < 30) {
+                document.getElementById("forecast").innerHTML = "미세먼지가 매우 심합니다. 가급적 실내활동을 하시길 바랍니다."
+            }
+  }
+  </script>
+{% endblock %}

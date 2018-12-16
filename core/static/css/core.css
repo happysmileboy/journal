@@ -64,3 +64,30 @@ article {
   color: #212529;
   padding-bottom: 70px;
 }
+
+td > img {
+  height: 50px;
+  width: auto;
+}
+
+.main2 {
+  width: 900px;
+  margin: auto;
+}
+
+.left{
+  position:fixed;
+  top:400px;
+  left:50px;
+}
+#left{
+  width: 100px;
+}
+.right{
+  position:fixed;
+  top:400px;
+  right:50px;
+}
+#right{
+  width: 100px;
+}
