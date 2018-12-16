@@ -1,4 +1,9 @@
-from django.shortcuts import render
+from django.shortcuts import (
+    render,
+    redirect,
+    get_object_or_404,
+)
+from .models import Article
 import urllib.request
 from urllib import parse
 import json
@@ -7,6 +12,82 @@ import csv
 
 
 def home(request):
+    seoul_district = {}
+    url = "http://openapi.seoul.go.kr:8088/4543496e6b743335343742466c496d/json/ListAirQualityByDistrictService/1/25"
+    with urllib.request.urlopen(url) as response:
+        data = json.loads(response.read().decode("utf-8"))
+    i = 1
+    for x in data['ListAirQualityByDistrictService']['row']:
+        k = x["MSRSTENAME"]
+        code = x["MSRADMCODE"]
+        try:
+            pm = int(x["PM10"])
+        except:
+            pm = 1000
+        if pm < 30:
+            color = '#00c9fa'
+        elif pm < 80:
+            color = '#72da00'
+        elif pm < 120:
+            color = '#ffbd00'
+        elif pm < 200:
+            color = '#ff5a00'
+        elif pm < 900:
+            color = '#ff0000'
+        else:
+            color = '#fafafa'
+
+        seoul_district[i] = [k, pm, color, code]
+        i += 1
+    date = data['ListAirQualityByDistrictService']["row"][0]["MSRDATE"]
+    date = date[:4] + "년 " + date[4:6] + "월 " + date[6:8] + "일 " + date[8:10] + "시"
+    cs = {'seoul_district': seoul_district, 'date': date}
+    print(seoul_district)
+    return render(request, "home.html", cs)
+
+
+def article_detail(request, pk):
+    article = get_object_or_404(Article, pk=pk)
+    ctx = {
+        'article': article,
+    }
+    return render(request, 'core/article_detail.html', ctx)
+
+
+def middle(request):
+    seoul_district = {}
+    url = "http://openapi.seoul.go.kr:8088/4543496e6b743335343742466c496d/json/ListAirQualityByDistrictService/1/25"
+    with urllib.request.urlopen(url) as response:
+        data = json.loads(response.read().decode("utf-8"))
+    i = 1
+    for x in data['ListAirQualityByDistrictService']['row']:
+        k = x["MSRSTENAME"]
+        try:
+            pm = int(x["PM10"])
+        except:
+            pm = 1000
+        if pm < 30:
+            color = '#00c9fa'
+        elif pm < 80:
+            color = '#72da00'
+        elif pm < 120:
+            color = '#ffbd00'
+        elif pm < 200:
+            color = '#ff5a00'
+        elif pm < 900:
+            color = '#ff0000'
+        else:
+            color = 'black'
+        seoul_district[i] = [k, pm, color]
+        i += 1
+    date = data['ListAirQualityByDistrictService']["row"][0]["MSRDATE"]
+    date = date[:4] + "년 " + date[4:6] + "월 " + date[6:8] + "일 " + date[8:10] + "시"
+    cs = {'seoul_district': seoul_district, 'date': date}
+
+    return render(request, "middle.html", cs)
+
+
+def small(request):
     seoul_district = {}
     url = "http://openapi.seoul.go.kr:8088/4543496e6b743335343742466c496d/json/ListAirQualityByDistrictService/1/25"
     with urllib.request.urlopen(url) as response:

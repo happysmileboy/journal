@@ -2,13 +2,37 @@
 {% load static %}
 
 {% block content %}
-<div>
+<div class="chart_wrap">
   <div id="chart"></div>
+  <div class="blank"></div>
+  <div class="info">
+    <h4>지역정보</h4>
+    <div class="forecast">
+      <span style="font-weight: bold">일기예보</span>
+    <p id="forecast"></p>
+    </div>
+
+    <table class="spec">
+      <tbody><tr>
+        <td>관측소</td><td id="castplace"></td>
+      </tr>
+      <tr>
+        <td>미세먼지</td><td id="pm10"></td>
+      </tr>
+      <tr>
+        <td>초미세먼지</td><td id="pm2.5"></td>
+      </tr>
+      <tr>
+        <td>그래프</td><td>만들어야합니당</td>
+      </tr>
+
+    </tbody></table>
+  </div>
 </div>
 <p>출처 : airkorea {{ date }} 기준 (업데이트주기: 1시간)</p>
   <script>
-    var width = 800,
-      height = 600;
+    var width = 680,
+      height = 560;
 
     var svg = d3.select("#chart").append("svg")
     .attr("width", width)
@@ -19,7 +43,7 @@
 
     var projection = d3.geo.mercator()
     .center([126.9895, 37.5651])
-    .scale(100000)
+    .scale(80000)
     .translate([width/2, height/2]);
 
     var path = d3.geo.path().projection(projection);
@@ -39,37 +63,83 @@
         .enter().append("text")
           .attr("transform", function(d) { return "translate(" + path.centroid(d) + ")"; })
           .attr("dy", ".35em")
-          .attr("class", function(d) {return d.properties.SIG_KOR_NM})
+          .attr("id", function(d) {return d.properties.SIG_KOR_NM +"t";})
           .text(function(d) { return d.properties.SIG_KOR_NM; })
+
     });
 
-    d3.csv("{% static 'kdata_s.csv'%}", function(data) {
-      places.selectAll("circle")
-          .data(data)
-        .enter().append("circle")
-          .attr("style", function(d) {return 'fill: ' + d.color})
-          .attr("cx", function(d) { return projection([d.lon, d.lat])[0]; })
-          .attr("cy", function(d) { return projection([d.lon, d.lat])[1]; })
-          .attr("r", 5)
-          .attr("id", function(d) {return d.name})
-
-
-      places.selectAll("text")
-          .data(data)
-        .enter().append("text")
-          .attr("x", function(d) { return projection([d.lon, d.lat])[0]; })
-          .attr("y", function(d) { return projection([d.lon, d.lat])[1] + 8;})
+    {#d3.csv("{% static 'kdata_s.csv'%}", function(data) {#}
+    {#  places.selectAll("circle")#}
+    {#      .data(data)#}
+    {#    .enter().append("circle")#}
+    {#      .attr("style", function(d) {return 'fill: ' + d.color})#}
+    {#      .attr("cx", function(d) { return projection([d.lon, d.lat])[0]; })#}
+    {#      .attr("cy", function(d) { return projection([d.lon, d.lat])[1]; })#}
+    {#      .attr("r", 5)#}
+    {#      .attr("id", function(d) {return d.name})#}
+    {##}
+    {##}
+    {#  places.selectAll("text")#}
+    {#      .data(data)#}
+    {#    .enter().append("text")#}
+    {#      .attr("x", function(d) { return projection([d.lon, d.lat])[0]; })#}
+    {#      .attr("y", function(d) { return projection([d.lon, d.lat])[1] + 8;})#}
           {#.text(function(d) { return d.name });#}
-    });
+    {# });#}
   </script>
 
   <script>
   var data = {{ seoul_district|safe }};
   setTimeout(function() {for (i = 1; i < 26; i++){
-      document.getElementById(data[i][0]).style.fill = data[i][2];
-      document.getElementsByClassName(data[i][0])[0].innerHTML = data[i][0] + ' ' + data[i][1] + "㎍/㎥"
-  }}, 100)
+      var t = document.getElementById(data[i][0]);
+      t.style.fill = data[i][2];
+      document.getElementById(data[i][0] + "t").setAttribute("onclick", "airkorea(" + data[i][3] + ")");
+      document.getElementById(data[i][0] + "t").innerHTML = data[i][0]
+  }}, 300)
   </script>
 
+  <script>
+  function airkorea(district){
+    var url_air = "http://openapi.seoul.go.kr:8088/4543496e6b743335343742466c496d/json/ListAirQualityByDistrictService/1/25/";
+    $.ajax({
+        url: url_air + district,
+        type:'GET',
+        success:function(data) {
+            var d = data["ListAirQualityByDistrictService"]["row"]
+            document.getElementById("castplace").innerHTML = d[0]["MSRSTENAME"]
+            document.getElementById("pm10").innerHTML = d[0]["PM10"]
+            document.getElementById("pm2.5").innerHTML = d[0]["PM25"]
+            var pm10 = d[0]["PM10"]
+            if (pm10 < 30){
+              document.getElementById("forecast").innerHTML = "오늘은 야외활동하기 좋은 날씨입니다. 피크닉을 가보는 건 어떨까요?"
+            } else if (pm10 < 80) {
+                document.getElementById("forecast").innerHTML = "오늘은 야외활동하기 좋은 날씨입니다. 잠시 일을 내려놓고 쉬어보세요!"
+            } else if (pm10 < 120) {
+                document.getElementById("forecast").innerHTML = "미세먼지 농도가 높은 편입니다. 장시간 무리한 실외활동을 자제하세요."
+            } else if (pm10 < 150) {
+                document.getElementById("forecast").innerHTML = "미세먼지 농도가 높네요. 마스크를 꼭 챙기세요"
+            } else if (pm10 < 30) {
+                document.getElementById("forecast").innerHTML = "미세먼지가 매우 심합니다. 가급적 실내활동을 하시길 바랍니다."
+            }
+        },
+        error:function(data){
+            alert('에러발생')
+
+        }
+    })
+  }
+  </script>
+
+  <article>
+    <p>
+    &nbsp;&nbsp;&nbsp;&nbsp;외출하기 전에 미세먼지 정보를 확인하시나요? 하지만 일반적으로 미세먼지 농도를 확인할 때 이용하는, 환경부의 미세먼지 정보가 꼭 옳지는 않을지도 모릅니다. 실제로 미세먼지 농도가 ‘맑음’ 또는 ‘보통’이라는 예보만 믿고 외출했다가 탁한 공기에 눈살을 찌푸리는 시민들이 많은데요. 이와 같이 국가 관측소에서 제공하는 미세먼지 정보가 실제와 차이를 보이는 이유를 데이터로 살펴보고자 합니다.
+    </p>
+    <p>
+    &nbsp;&nbsp;&nbsp;&nbsp;위의 지도에서 각 구의 영역에 칠해진 색상은, 환경부 산하에 있는 한국환경공단의 국가 관측망인 ‘에어코리아'(이하 국가 관측소)에서 측정한 해당 구의 미세먼지 농도를 단계에 따라 표시한 것입니다. 이를 바탕으로 보면, 대부분의 구는 공기가 쾌청한 것을 확인할 수 있습니다. 하지만 초록색으로 칠해진 구역 위에 상당수의 주황색, 빨간색 점들이 나타납니다. 이는 ‘케이웨더’에서 측정한 미세먼지 농도로, 케이웨더는 서울 전역에 619개 가량의 관측소를 두고 있는 민간 기상 업체입니다. 케이웨더는 서울에 총 39개의 에어코리아에 비해 약 16배 더 많은 관측소를 가지고 있어, 대상 구역을 더욱 세분화해서 미세먼지 정보를 제공합니다. 케이웨더의 데이터를 살펴보면, 에어코리아에서 측정한 미세먼지 농도가 구의 전반적인 미세먼지 농도를 반영하지 못하는 경우가 발견됩니다.
+    </p>
+    <p>
+    &nbsp;&nbsp;&nbsp;&nbsp;이와 같은 문제는 왜 발생하는 것일까요? 자세한 내용을 알고 싶으시다면 상단의 기사탭을 클릭해주세요.
+    </p>
+  </article>
 {% endblock %}
 

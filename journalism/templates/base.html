@@ -4,13 +4,12 @@
 <head>
   <meta charset="UTF-8">
   <title>Title</title>
-  <!-- Compiled and minified CSS -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-  <!-- Compiled and minified JavaScript -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 
-  <link href="{% static 'css/core.css' %}?ver=1.1" rel="stylesheet">
-  <link href="{% static 'css/skeleton.css' %}" rel="stylesheet">
+  <link href="{% static 'css/core.css' %}?ver=1.14" rel="stylesheet">
+  <link href="{% static 'css/skeleton.css' %}?ver=1.13" rel="stylesheet">
+
+  <!-- jquery -->
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 
   <script src="http://d3js.org/d3.v3.min.js"></script>
   <script src="http://d3js.org/topojson.v1.min.js"></script>
@@ -20,47 +19,44 @@
 <body>
 
 <!--Header-->
-  <nav>
-    <div class="nav-wrapper">
-      <a href="#" class="brand-logo">Logo</a>
-      <ul id="nav-mobile" class="right hide-on-med-and-down">
-        <li><a href="sass.html">Sass</a></li>
-        <li><a href="badges.html">Components</a></li>
-        <li><a href="collapsible.html">JavaScript</a></li>
-      </ul>
+<header>
+  <nav class="nav_desktop">
+    <div class="nav_bottom">
+      <div id="logo"><a href="/"><img src="{% static 'logo.png' %}" alt="해피문데이 로고" title="해피문데이 로고"></a></div>
+      <div style="flex:1.5"></div>
+      <div class="menu_group">
+        <a href="{% url 'core:home' %}" class="nav_company">실시간미세먼지</a>
+        <a href="/" class="nav_product">기사보기</a>
+        <a href="/" class="nav_product">발표자료</a>
+        <a href="/" class="nav_review">팀소개</div></a>
+      </div>
     </div>
   </nav>
-
+</header>
 
 
 <!-- content-->
   <div class="main">
+{#    <div>#}
+{#      <p>url list:</p>#}
+{#      <ul>#}
+{#        <li><a href="{% url 'core:middle' %}">동별미세먼지</a></li>#}
+{#        <li><a href="{% url 'core:small' %}">모든미세먼지</a></li>#}
+{#      </ul>#}
+{#    </div>#}
 
   {% block content %}
   {% endblock %}
   </div>
 
 <!-- Footer-->
-  <footer class="page-footer">
-    <div class="container">
-      <div class="row">
-        <div class="col l6 s12">
-          <h5 class="white-text">Footer Content</h5>
-          <p class="grey-text text-lighten-4">You can use rows and columns here to organize your footer content.</p>
-        </div>
-        <div class="col l4 offset-l2 s12">
-          <h5 class="white-text">Links</h5>
-          <ul>
-            <li><a class="grey-text text-lighten-3" href="#!">Home</a></li>
-            <li><a class="grey-text text-lighten-3" href="#!">Media</a></li>
-          </ul>
-        </div>
-      </div>
-    </div>
-    <div class="footer-copyright">
-      <div class="container">
-      © 2018 Copyright Datajournalism
-      <a class="grey-text text-lighten-4 right" href="#!">More Links</a>
+  <footer>
+    <div class="wrap">
+      <div class="company_infomation">
+        <p>
+          팀원: 권나현&nbsp; 서지희&nbsp; 손준혁&nbsp;신경연&nbsp;<br>
+          © <b>3조 서울시 미세먼지 팩트체크</b> ALL Rights Reserved
+        </p>
       </div>
     </div>
   </footer>

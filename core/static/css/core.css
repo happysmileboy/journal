@@ -1,13 +1,29 @@
-nav .brand-logo{
-  color: rgb(120,120,120);
+.chart_wrap{
+  display: flex;
+  background-color: #f5f6f5;
 }
-
-main {
-  width:1024px;
-  margin: auto;
+.blank{
+  flex:0.1
 }
-
-
+.info {
+  flex:0.8;
+}
+.forecast{
+  border-bottom: 2px solid #868e96;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+}
+.spec{
+  border-collapse: collapse;
+  width: 100%;
+  border-bottom: 1px solid #868e96;
+  margin-bottom: 20px;
+}
+.spec td:first-child {
+  padding: 10px 0;
+  vertical-align: top;
+  width: 90px;
+}
 /* seoul svg*/
 svg circle {
   fill: orange;
@@ -19,7 +35,7 @@ svg circle:hover {
   stroke: #333;
 }
 svg text {
-  pointer-events: none;
+  cursor:pointer;
 }
 svg .municipality {
   fill: #efefef;
@@ -40,4 +56,11 @@ svg #places text {
   color: #777;
   font: 10px sans-serif;
   text-anchor: start;
+}
+
+article {
+  font-size: 1rem;
+  line-height: 1.7em;
+  color: #212529;
+  padding-bottom: 70px;
 }
