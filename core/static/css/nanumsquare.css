@@ -1,0 +1,33 @@
+/*
+* Nanum Square Web Fonts
+* Copyright (c) 2010, NAVER Corporation (http://www.nhncorp.com)
+*/
+
+@font-face {
+font-family: "NanumSquareLight";
+src: url(/font/NanumSquareL.eot);
+src: url(/font/NanumSquareL.eot?#iefix) format('embedded-opentype'),
+url(/font/NanumSquareL.woff) format('woff'),
+url(/font/NanumSquareL.ttf) format('truetype');
+}
+
+@font-face {
+font-family: "NanumSquare";
+src: url(/font/NanumSquareR.eot);
+src: url(/font/NanumSquareR.eot?#iefix) format('embedded-opentype'),
+url(/font/NanumSquareR.woff2) format('woff2'),
+url(/font/NanumSquareR.woff) format('woff'),
+url(/font/NanumSquareR.ttf) format('truetype');
+}
+
+@font-face {
+font-family: "NanumSquareBold";
+src: url(/font/NanumSquareB.eot);
+src: url(/font/NanumSquareB.eot?#iefix) format('embedded-opentype'),
+url(/font/NanumSquareB.woff2) format('woff2'),
+url(/font//NanumSquareB.woff) format('woff'),
+url(/font/NanumSquareB.ttf) format('truetype');
+}
+
+
+출처: https://aspdotnet.tistory.com/2128 [심재운 블로그]

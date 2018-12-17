@@ -7,6 +7,7 @@ a {
     transition: all 0.3s;
 }
 body {
+  font-family: "NanumSquare", "sans-serif";
   background-color: #fff;
   margin: 0;
   font-size: 0.95rem;
