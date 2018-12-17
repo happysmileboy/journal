@@ -2,6 +2,10 @@
 {% load static %}
 
 {% block content %}
+<div>
+  <button>airkorea</button>
+  <button>kweather</button>
+</div>
 <div class="chart_wrap">
   <div id="chart">
     <p style="position: absolute; top: 590px;">출처 : airkorea {{ date }} 기준 (업데이트주기: 1시간)</p>
@@ -80,24 +84,27 @@
 
     });
 
-    {#d3.csv("{% static 'kdata_s.csv'%}", function(data) {#}
-    {#  places.selectAll("circle")#}
-    {#      .data(data)#}
-    {#    .enter().append("circle")#}
-    {#      .attr("style", function(d) {return 'fill: ' + d.color})#}
-    {#      .attr("cx", function(d) { return projection([d.lon, d.lat])[0]; })#}
-    {#      .attr("cy", function(d) { return projection([d.lon, d.lat])[1]; })#}
-    {#      .attr("r", 5)#}
-    {#      .attr("id", function(d) {return d.name})#}
-    {##}
-    {##}
-    {#  places.selectAll("text")#}
-    {#      .data(data)#}
-    {#    .enter().append("text")#}
-    {#      .attr("x", function(d) { return projection([d.lon, d.lat])[0]; })#}
-    {#      .attr("y", function(d) { return projection([d.lon, d.lat])[1] + 8;})#}
+    d3.csv("{% static 'kdata_m.csv'%}", function(data) {
+      places.selectAll("circle")
+          .data(data)
+        .enter().append("circle")
+          .attr("style", function(d) {return 'fill: ' + d.color})
+          .attr("cx", function(d) { return projection([d.lon, d.lat])[0]; })
+          .attr("cy", function(d) { return projection([d.lon, d.lat])[1]; })
+          .attr("r", 5)
+          .attr("pm10", function(d) {return d.pm10})
+          .attr("pm25", function(d) {return d.pm25})
+          .attr("id", function(d) {return d.name})
+          .attr("onclick", function(d) {return "kweather(" + d.gu + ' ' + d.name +','+ d.pm10 +',' + d.pm25 + ')' })
+
+
+      places.selectAll("text")
+          .data(data)
+        .enter().append("text")
+          .attr("x", function(d) { return projection([d.lon, d.lat])[0]; })
+          .attr("y", function(d) { return projection([d.lon, d.lat])[1] + 8;})
           {#.text(function(d) { return d.name });#}
-    {# });#}
+     });
   </script>
 
   <script>
@@ -107,7 +114,7 @@
       t.style.fill = data[i][2];
       document.getElementById(data[i][0] + "t").setAttribute("onclick", "airkorea(" + data[i][3] + ")");
       document.getElementById(data[i][0] + "t").innerHTML = data[i][0]
-  }}, 300)
+  }}, 500)
   </script>
 
   <script>
@@ -139,6 +146,23 @@
 
         }
     })
+  }
+
+  function kweather(district, pm10, pm25){
+      document.getElementById("castplace").innerHTML = district;
+      document.getElementById("pm10").innerHTML = pm10;
+      document.getElementById("pm2.5").innerHTML = pm25;
+      if (pm10 < 30){
+        document.getElementById("forecast").innerHTML = "오늘은 야외활동하기 좋은 날씨입니다. 피크닉을 가보는 건 어떨까요?"
+      } else if (pm10 < 80) {
+          document.getElementById("forecast").innerHTML = "오늘은 야외활동하기 적합한 날씨입니. 잠시 일을 내려놓고 쉬어보세요!"
+      } else if (pm10 < 100) {
+          document.getElementById("forecast").innerHTML = "미세먼지 농도가 높은 편입니다. 장시간 무리한 실외활동을 자제하세요."
+      } else if (pm10 < 150) {
+          document.getElementById("forecast").innerHTML = "미세먼지 농도가 높네요. 마스크를 꼭 챙기세요"
+      } else {
+          document.getElementById("forecast").innerHTML = "미세먼지가 매우 심합니다. 가급적 실내활동을 하시길 바랍니다."
+      }
   }
   </script>
 

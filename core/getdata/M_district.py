@@ -18,15 +18,17 @@ print(keylist)
 
 
 district_url = "http://kweather.co.kr/air/data/area_realtime/MAP_"
-f = open('../core/static/kdata_m.csv', 'w', encoding='utf-8')
+f = open('../static/kdata_m.csv', 'w', encoding='utf-8')
 wr = csv.writer(f)
-wr.writerow(['name','pm10','color','lat','lon'])
+wr.writerow(['gu','name','pm10','pm25','color','lat','lon'])
 for x in keylist:
     with urllib.request.urlopen(district_url + x + ".json") as response:
         dc = json.loads(response.read().decode("utf-8"))
+        gu = dc[list(dc.keys())[0]][0].split("#")[1]
         D_key = list(dc.keys())[1:]
         for y in D_key:
             pm10 = dc[y][0].split("#")[7]
+            pm25 = dc[y][0].split("#")[9]
             D_name = dc[y][0].split("#")[1]
             D_lat = dc[y][0].split("#")[4]
             D_lon = dc[y][0].split("#")[5]
@@ -42,5 +44,5 @@ for x in keylist:
                 color = 'rgb(255,0,0)'
             else:
                 color = 'rgb(0,0,0)'
-            wr.writerow([D_name, pm10, color, D_lat, D_lon])
+            wr.writerow([gu, D_name, pm10, pm25, color, D_lat, D_lon])
 f.close()
