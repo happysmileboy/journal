@@ -14,7 +14,7 @@
   <div class="info">
     <h4>지역정보</h4>
     <div class="forecast">
-      <span style="font-weight: bold">일기예보</span>
+      <span style="font-weight: bold">일기예보 : </span><span id="gov"></span>
     <p id="forecast"></p>
     </div>
 
@@ -125,6 +125,7 @@
         type:'GET',
         success:function(data) {
             var d = data["ListAirQualityByDistrictService"]["row"]
+            document.getElementById("gov").innerHTML = 'Airkorea'
             document.getElementById("castplace").innerHTML = d[0]["MSRSTENAME"]
             document.getElementById("pm10").innerHTML = d[0]["PM10"]
             document.getElementById("pm2.5").innerHTML = d[0]["PM25"]
@@ -149,6 +150,7 @@
   }
 
   function kweather(district, pm10, pm25){
+      document.getElementById("gov").innerHTML = 'kweather'
       document.getElementById("castplace").innerHTML = district;
       document.getElementById("pm10").innerHTML = pm10;
       document.getElementById("pm2.5").innerHTML = pm25;
