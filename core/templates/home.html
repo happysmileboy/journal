@@ -84,7 +84,7 @@
 
     });
 
-    d3.csv("{% static 'kdata_m.csv'%}", function(data) {
+    d3.csv("{% static 'kdata_s.csv'%}", function(data) {
       places.selectAll("circle")
           .data(data)
         .enter().append("circle")
@@ -95,7 +95,7 @@
           .attr("pm10", function(d) {return d.pm10})
           .attr("pm25", function(d) {return d.pm25})
           .attr("id", function(d) {return d.name})
-          .attr("onclick", function(d) {return "kweather('" + d.gu + ' ' + d.name +"',"+ d.pm10 +',' + d.pm25 + ')' })
+          .attr("onclick", function(d) {return "kweather('" + d.gu + ' ' + d.name +'", "'+ d.pm10 +'", "' + d.pm25 + '")' })
 
 
       places.selectAll("text")
