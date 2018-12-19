@@ -74,6 +74,9 @@ td > img {
   width: 800px;
   margin: auto;
 }
+invisible{
+  display:none;
+}
 
 .left{
   position:fixed;
